@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>分光水晶计算器</title>
+<!-- 添加到主屏幕用的图标与全屏设置 -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="水晶计算器">
+<meta name="theme-color" content="#9f7aea">
+<meta name="generator" content="Crystal Calculator">
+<meta name="author" content="Calculator">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%239f7aea'/%3E%3Ctext x='50' y='68' font-size='52' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='bold'%3E%E6%B0%B4%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%239f7aea'/%3E%3Ctext x='50' y='68' font-size='52' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='bold'%3E%E6%B0%B4%3C/text%3E%3C/svg%3E">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  /* 隐藏平台自动注入的 AI 生成水印角标（不影响页面内容） */
+  [class*="watermark"], [class*="Watermark"], [id*="watermark"],
+  [class*="ai-mark"], [class*="aiMark"], [class*="badge-ai"],
+  [data-watermark], [data-ai-mark] { display: none !important; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #f0f4f8; min-height: 100vh; padding: 16px; color: #2d3748;
+  }
+  .title { text-align: center; font-size: 22px; font-weight: 800; margin: 10px 0 14px; }
+  .card {
+    background: #fff; border-radius: 18px; padding: 22px; margin-bottom: 14px;
+    box-shadow: 0 2px 10px rgba(0,0,0,.06); text-align: center;
+  }
+  .label { color: #718096; font-size: 14px; }
+  .crystal { font-size: 48px; font-weight: 800; color: #2b6cb0; margin: 6px 0; padding: 10px 0; width:100%; text-align:center; background:#f7fafc; border:2px solid #e2e8f0; border-radius:14px; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+  .balls { font-size: 22px; font-weight: 700; color: #38a169; padding: 10px 0; width:100%; text-align:center; background:#f7fafc; border:2px solid #e2e8f0; border-radius:14px; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+  .btn {
+    display: block; width: 100%; padding: 16px; margin: 8px 0;
+    border: none; border-radius: 14px; color: #fff; font-size: 17px; font-weight: 700;
+  }
+  .btn:active { transform: scale(.98); }
+  .b1 { background: #4299e1; }
+  .b2 { background: #48bb78; }
+  .b3 { background: #ed8936; }
+  .b4 { background: #9f7aea; }
+  .manual { display: flex; gap: 8px; margin-top: 8px; }
+  .manual input {
+    flex: 1; padding: 12px; border: 1px solid #e2e8f0; border-radius: 12px;
+    font-size: 16px; text-align: center; min-width: 0;
+  }
+  .manual { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+  .manual input, .manual .mini { flex: 1 1 0; min-width: 0; }
+  button { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+  input { -webkit-appearance: none; appearance: none; }
+  input[type=number] { -moz-appearance: textfield; }
+  .daybtn { min-width: 0; }
+  .mini { flex: 1; padding: 12px; border: none; border-radius: 12px; background: #e2e8f0; font-size: 16px; font-weight: 700; }
+  .danger { background: #feb2b2; color: #c53030; }
+  .log {
+    background: #fff; border-radius: 18px; padding: 16px; max-height: 220px; overflow-y: auto;
+    font-size: 14px; line-height: 1.9;
+  }
+  .log h3 { font-size: 15px; margin-bottom: 8px; color: #4a5568; }
+  .log p { color: #4a5568; border-bottom: 1px dashed #edf2f7; padding: 2px 0; }
+  .next {
+    background: #fff; border-radius: 18px; padding: 18px; margin-bottom: 14px;
+    box-shadow: 0 2px 10px rgba(0,0,0,.06); text-align: center;
+  }
+  .next .big { font-size: 20px; font-weight: 800; color: #9f7aea; margin: 4px 0; }
+  .next .sub { color: #718096; font-size: 14px; }
+  .buyrow {
+    display: flex; align-items: center; gap: 12px; padding: 12px;
+    background: #f7fafc; border-radius: 12px; margin-top: 8px; cursor: pointer;
+  }
+  .buyrow .box { font-size: 22px; width: 34px; text-align: center; }
+  .buyrow .txt { flex: 1; font-size: 14px; color: #2d3748; }
+  .daybtn {
+    padding: 10px 14px; border-radius: 12px; background: #f7fafc; color: #4a5568;
+    font-size: 14px; cursor: pointer; border: 1px solid #e2e8f0;
+  }
+  .daybtn.on { background: #9f7aea; color: #fff; border-color: #9f7aea; font-weight: 700; }
+</style>
+</head>
+<body>
+  <div class="title">分光水晶 · 棱镜球</div>
+
+  <div class="card" style="position:relative">
+    <div style="position:absolute;top:10px;right:12px;z-index:5">
+      <button class="mini" style="background:#e53e3e;color:#fff;touch-action:manipulation;-webkit-tap-highlight-color:transparent" ontouchend="event.preventDefault();clearCrystal()" onclick="clearCrystal()">清零水晶</button>
+    </div>
+    <div class="label">当前分光水晶（点下方输入框直接改）</div>
+    <input class="crystal" id="crystalInput" type="number" inputmode="numeric" value="0" onchange="editCrystal(this.value)" onblur="editCrystal(this.value)">
+    <div class="label" style="margin-top:10px">已拥有棱镜球（点下方输入框直接改）</div>
+    <input class="balls" id="ballsInput" type="number" inputmode="numeric" value="0" onchange="editBalls(this.value)" onblur="editBalls(this.value)">
+  </div>
+
+  <div class="card" style="margin-bottom:12px">
+    <div class="label" style="margin-bottom:8px">你现在买了下面这些吗？（勾选后日常水晶按实际算）</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button id="cardBtn" class="mini" style="flex:1;min-width:150px" onclick="toggleCard()">月卡：未买</button>
+      <button id="passBtn" class="mini" style="flex:1;min-width:150px" onclick="togglePass()">通行证：未买</button>
+    </div>
+    <div class="sub" style="margin-top:8px;color:#a0aec0">月卡每天登录 +150 分光水晶；通行证任务买了 +80/天，没买到62级只有 +20/天。</div>
+  </div>
+
+  <button id="loginBtn" class="btn b1" style="display:none" onclick="add(150,'月卡每日登录')">✅ 月卡每日登录  +150</button>
+  <button class="btn b2" onclick="add(passDaily(),'通行证任务')">✅ 通行证任务  +<span id="passAmt">80</span></button>
+  <button class="btn b3" onclick="add(200,'献祭炫彩精灵')">🔥 献祭炫彩精灵  +200</button>
+  <button class="btn b4" onclick="exchange()">🎁 兑换棱镜球  −1600</button>
+
+  <div class="card">
+    <div class="manual">
+      <input id="num" type="number" placeholder="输入数字">
+      <button class="mini" onclick="manual(1)">＋</button>
+      <button class="mini" onclick="manual(-1)">−</button>
+    </div>
+    <button class="btn danger" style="margin-top:10px" onclick="reset()">清零</button>
+  </div>
+
+  <div class="log">
+    <h3>记录
+      <button class="mini" style="float:right;margin-left:8px" onclick="undo()">↩ 返回上一步</button>
+      <button class="mini" style="float:right" onclick="clearLog()">刷新记录</button>
+    </h3>
+    <div id="logbox"></div>
+  </div>
+
+  <div class="next">
+    <div class="sub">当前水晶可换棱镜球</div>
+    <div class="big" id="canBalls">0 个</div>
+    <div class="sub" id="nextNeed">距离下一个还差 0 个水晶</div>
+  </div>
+
+  <div class="next">
+    <div class="sub" id="dailyNote">只靠日常凑一个棱镜球（每天 +<span id="dailyAmt">0</span>）</div>
+    <div class="big" id="daysNeed">还需 0 天</div>
+    <div class="sub" id="daysDetail">凑齐 1600 个水晶</div>
+  </div>
+
+  <div class="next">
+    <div class="sub" id="todayLine">取货：—</div>
+    <div class="big" id="toSunday">距取货：—</div>
+    <div class="sub" id="nowTime"></div>
+    <div class="sub" id="weekHelp">本周内想换棱镜球，看下面输入</div>
+    <div class="manual" style="margin-top:10px">
+      <input id="wantBalls" type="number" placeholder="这周想换几个球" min="1" oninput="calcSacrifice()">
+      <button class="mini" style="flex:0 0 90px" onclick="calcSacrifice()">计算</button>
+    </div>
+    <div class="sub" id="sacResult" style="margin-top:8px">输入想换的球数，自动算要献祭几只</div>
+  </div>
+
+  <div class="next">
+    <div class="sub">你想在什么时候拿到？（按今天实际星期几选；下周的自己填）</div>
+    <div id="dayPick" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px"></div>
+    <div class="manual" style="margin-top:10px">
+      <input id="customDay" type="text" placeholder="下周几拿到？自己填，如：下周一 / 下周三">
+      <button class="mini" style="flex:0 0 90px" onclick="pickCustom()">填入</button>
+    </div>
+  </div>
+
+  <div class="next">
+    <div class="sub">礼包购买勾选（✅=已买，❌=未买；已买的不再计入方案，每赛季限购1次）</div>
+    <div class="buyrow" onclick="toggleBuy('p1')">
+      <span id="p1box" class="box">❌</span>
+      <span class="txt">高级礼包 1980钻（棱镜球×3，660钻/颗）</span>
+    </div>
+    <div class="buyrow" onclick="toggleBuy('p2')">
+      <span id="p2box" class="box">❌</span>
+      <span class="txt">炫彩豪华礼遇包 3980钻（棱镜球×5，796钻/颗）</span>
+    </div>
+    <div class="manual" style="margin-top:10px">
+      <input id="needBalls" type="number" placeholder="想买几个棱镜球" min="1" oninput="calcPlan()">
+      <button class="mini" style="flex:0 0 90px" onclick="calcPlan()">算方案</button>
+    </div>
+    <div class="sub" style="margin-top:12px">学院月卡（月度补给）剩余天数：</div>
+    <div class="manual" style="margin-top:8px">
+      <input id="cardDays" type="number" placeholder="填月卡剩余天数（游戏里看到的）" min="0" oninput="checkCard()">
+    </div>
+    <div id="cardStatus" class="sub" style="margin-top:6px;color:#a0aec0">填了剩余天数后，这里判断还能不能续订</div>
+    <div id="planResult" style="margin-top:10px;text-align:left;font-size:14px;line-height:1.9"></div>
+    <div class="sub" style="margin-top:12px">商城参考商品（请配合游戏内商城对照查看；价格与道具以游戏内实时商城为准）</div>
+    <div id="refPics" style="margin-top:8px"></div>
+    <div class="sub" style="margin-top:8px;color:#a0aec0;font-size:12px;line-height:1.6">备注：本工具仅提供数值测算，不附带游戏内截图；商品价格与道具建议打开游戏内商城对照查看，本工具不对官方画面进行二次呈现。</div>
+  </div>
+
+<script>
+// ===== 基础常量与全局状态（旧内核兜底：全部 var 声明，避免报错导致整块功能失效） =====
+var KEY = "crystal_app_v1";
+var BALL_PRICE = 1600;
+var weekNames = ["周日","周一","周二","周三","周四","周五","周六"];
+var chosenDay = 0;
+var customLabel = "";
+
+function defaultState(){
+  return { crystal:0, balls:0, log:[], bought:{p1:false,p2:false}, card:false, pass:false, history:[] };
+}
+function loadState(){
+  var d = defaultState();
+  try{
+    var raw = localStorage.getItem(KEY);
+    if(raw){
+      var saved = JSON.parse(raw);
+      if(saved){
+        d.crystal = (typeof saved.crystal === "number") ? saved.crystal : 0;
+        d.balls = (typeof saved.balls === "number") ? saved.balls : 0;
+        d.log = Array.isArray(saved.log) ? saved.log : [];
+        d.bought = saved.bought || {p1:false,p2:false};
+        d.bought.p1 = !!d.bought.p1; d.bought.p2 = !!d.bought.p2;
+        d.card = !!saved.card; d.pass = !!saved.pass;
+        d.history = [];
+      }
+    }
+  }catch(e){ d = defaultState(); }
+  return d;
+}
+var state = loadState();
+
+function save(){
+  try{
+    localStorage.setItem(KEY, JSON.stringify({
+      crystal:state.crystal, balls:state.balls, log:state.log,
+      bought:state.bought, card:state.card, pass:state.pass
+    }));
+  }catch(e){ /* 私密模式/存储被禁时静默忽略，不影响页面使用 */ }
+}
+
+// 通行证买了 +80/天，没买到62级 +20/天；月卡每日登录 +150
+function passDaily(){ return state.pass ? 80 : 20; }
+function dailyTotal(){
+  var d = passDaily();
+  if(state.card) d += 150;
+  return d;
+}
+
+// 商城参考商品（不内嵌游戏截图，避免侵权；价格道具以游戏内为准）
+const REF_PICS = [
+{t:"学院月度补给（月卡·140天剩余）"},
+{t:"炫彩豪华礼遇包 3980钻=棱镜球×5"},
+{t:"高级礼包 1980钻=棱镜球×3"},
+{t:"珍稀道具城（宝匣800/常驻1600/织梦1600）"},
+{t:"充值商城档位（各档洛克钻+加赠）"}
+];
+function buildDayPick(){
+  const box = document.getElementById("dayPick");
+  const now = new Date();
+  let html = "";
+  for(let i=0;i<7;i++){
+    const d = new Date(now);
+    d.setDate(now.getDate()+i);
+    const label = i===0 ? "今天" : (i===1?"明天":(i===2?"后天":"第"+(i+1)+"天"));
+    html += `<div class="daybtn ${i===chosenDay && !customLabel?'on':''}" onclick="pickDay(${i})">${label} ${weekNames[d.getDay()]}</div>`;
+  }
+  box.innerHTML = html;
+}
+function pickDay(i){ chosenDay = i; customLabel = ""; buildDayPick(); updateTopDate(); calcPlan(); }
+
+// 解析自己填的「下周几 / 周几」，算出从今天到那天相差几天（下周=再加7天）
+function parseCustomDay(v){
+  const weekMap = {"日":0,"天":0,"一":1,"二":2,"三":3,"四":4,"五":5,"六":6};
+  const m = v.match(/周([日天一二三四五六])/);
+  if(!m) return null;
+  const target = weekMap[m[1]];
+  const now = new Date();
+  const today = now.getDay();
+  let diff = (target - today + 7) % 7;
+  if(/下周/.test(v)) diff += 7;
+  if(diff === 0) diff = 7; // 写「下周X」但X就是今天时，取下个星期的那天
+  return diff;
+}
+function pickCustom(){
+  const v = document.getElementById("customDay").value.trim();
+  if(!v) return;
+  customLabel = v;
+  const diff = parseCustomDay(v);
+  if(diff !== null) chosenDay = diff;
+  buildDayPick();
+  updateTopDate();
+  calcPlan();
+}
+
+// 当前选中取货日距今天的天数（0=今天）
+function selectedDiff(){
+  if(customLabel){
+    const diff = parseCustomDay(customLabel);
+    return diff !== null ? diff : chosenDay;
+  }
+  return chosenDay;
+}
+// 顶部时间显示跟着选中的取货日变
+function updateTopDate(){
+  const weekNames = ["周日","周一","周二","周三","周四","周五","周六"];
+  const now = new Date();
+  const diff = selectedDiff();
+  const d = new Date(now); d.setDate(now.getDate()+diff);
+  const label = diff===0?"今天":(diff===1?"明天":(diff===2?"后天":"第"+(diff+1)+"天"));
+  document.getElementById("todayLine").textContent = "取货：" + label + " " + weekNames[d.getDay()];
+  document.getElementById("toSunday").textContent = diff===0 ? "就是今天" : "距取货还有 " + diff + " 天";
+}
+
+// 月卡续订判断：续订一次+30天，加完不能超过179天；超了就不能续，重复买只返300钻
+function checkCard(){
+  const v = parseInt(document.getElementById("cardDays").value);
+  const box = document.getElementById("cardStatus");
+  if(isNaN(v) || v < 0){
+    box.textContent = "填了剩余天数后，这里判断还能不能续订";
+    box.style.color = "#a0aec0";
+    return;
+  }
+  const after = v + 30;
+  if(after > 179){
+    box.textContent = "剩余 " + v + " 天，再加30天 = " + after + " 天 >179，不能续订（再买只返300洛克钻，不延长时长）";
+    box.style.color = "#ff6b6b";
+  } else {
+    const canAdd = 179 - after;
+    box.textContent = "剩余 " + v + " 天，续订+30 = " + after + " 天 ≤179，可以续；续完还能再续 " + Math.floor(canAdd/30) + " 次";
+    box.style.color = "#6ee7b7";
+  }
+  calcPlan();
+}
+
+// 礼包：p1=1980钻3球(660/颗)，p2=3980钻5球(796/颗)；已买的跳过
+const PACKS = {
+  p1: {price:1980, balls:3, name:"高级礼包 1980钻（3球）"},
+  p2: {price:3980, balls:5, name:"炫彩豪华礼遇包 3980钻（5球）"}
+};
+
+function toggleBuy(k){
+  state.bought[k] = !state.bought[k];
+  document.getElementById(k+"box").textContent = state.bought[k] ? "✅" : "❌";
+  save(); calcPlan();
+}
+
+function calcPlan(){
+  const want = parseInt(document.getElementById("needBalls").value);
+  const box = document.getElementById("planResult");
+  if(isNaN(want) || want <= 0){ box.innerHTML = "输入想买的球数，自动挑最便宜的组合"; return; }
+  // 可用礼包（未买过的），按单价从低到高
+  const avail = Object.keys(PACKS)
+    .filter(k => !state.bought[k])
+    .map(k => ({...PACKS[k], key:k}))
+    .sort((a,b) => a.price/a.balls - b.price/b.balls);
+  let remain = want, cost = 0, lines = [];
+  for(const p of avail){
+    if(remain <= 0) break;
+    remain -= p.balls;
+    cost += p.price;
+    lines.push("买 " + p.name + "（得 " + p.balls + " 球）");
+  }
+  // 礼包不够的部分，按常驻棱镜球1600/颗补
+  if(remain > 0){
+    cost += remain * 1600;
+    lines.push("剩余 " + remain + " 颗用道具城常驻棱镜球补（1600钻/颗）");
+  }
+  const totalBalls = want;
+  const per = Math.round(cost/totalBalls);
+  // 充值档位（价格，实得钻含加赠）
+  const TIERS = [
+    {rmb:10,  diamond:100},
+    {rmb:30,  diamond:300},
+    {rmb:68,  diamond:688, bonus:8},
+    {rmb:118, diamond:1200, bonus:20},
+    {rmb:198, diamond:2060, bonus:80},
+    {rmb:348, diamond:3725, bonus:245},
+    {rmb:648, diamond:7128, bonus:648},
+    {rmb:988, diamond:11000, bonus:1120}
+  ];
+  // 贪心凑钻：从大档位往下取，尽量用高性价比档位补够 cost
+  const need = cost;
+  let left = need, buy = [], rmb = 0;
+  const sorted = [...TIERS].sort((a,b)=>b.diamond-a.diamond);
+  for(const t of sorted){
+    while(left > 0 && t.diamond >= left || (left > 0 && t.diamond >= 300)){
+      // 只在该档位能明显覆盖剩余时购买；最后兜底
+      buy.push(t); left -= t.diamond; rmb += t.rmb;
+      if(left <= 0) break;
+    }
+    if(left <= 0) break;
+  }
+  // 简化：直接给出建议档位组合（凑够cost）
+  let combo = [];
+  let rest = need;
+  // 优先大档位，贪心
+  const big = [...TIERS].sort((a,b)=>b.diamond-a.diamond);
+  let used = [];
+  for(const t of big){
+    while(rest > 0 && t.diamond <= rest + t.diamond*0.3){
+      used.push(t); rest -= t.diamond;
+      if(rest <= 0) break;
+    }
+    if(rest <= 0) break;
+  }
+  const rmbTotal = used.reduce((s,t)=>s+t.rmb,0);
+  const diaGot = used.reduce((s,t)=>s+t.diamond,0);
+  const comboStr = used.length
+    ? used.map(t => "¥" + t.rmb + "（得" + t.diamond + "钻" + (t.bonus ? "，加赠" + t.bonus : "") + "）").join(" + ")
+    : "额度很小，按实际缺口选小额档";
+  // 选定取货日期（按真实星期，不是默认周日）
+  const weekNames = ["周日","周一","周二","周三","周四","周五","周六"];
+  const now = new Date();
+  let dayLabel, daysAvail;
+  if(customLabel){
+    // 自己填的下周几：按解析出的真实天数算，上面取货时间跟着显示
+    const diff = parseCustomDay(customLabel);
+    if(diff !== null){
+      const d = new Date(now); d.setDate(now.getDate()+diff);
+      dayLabel = customLabel + "（" + weekNames[d.getDay()] + "）";
+      daysAvail = diff + 1;
+    } else {
+      dayLabel = customLabel;
+      daysAvail = 8;
+    }
+  } else {
+    const d = new Date(now); d.setDate(now.getDate()+chosenDay);
+    dayLabel = chosenDay===0?"今天":(chosenDay===1?"明天":(chosenDay===2?"后天":"第"+(chosenDay+1)+"天"));
+    daysAvail = chosenDay + 1;
+  }
+  const dailyCrystal = dailyTotal() * daysAvail;
+  box.innerHTML =
+    "目标：" + totalBalls + " 颗棱镜球<br>" +
+    "取货时间：" + dayLabel + "<br>" +
+    lines.map(l => "• " + l).join("<br>") + "<br>" +
+    "<b>礼包合计约 " + cost + " 钻（平均 " + per + " 钻/颗）</b><br>" +
+    "💰 充值凑钻建议：" + comboStr + "<br>" +
+    "约需 ¥" + rmbTotal + "（实得约 " + diaGot + " 钻）<br>" +
+    "📅 到" + dayLabel + "为止，日常约可拿 " + dailyCrystal + " 分光水晶（" + daysAvail + " 天 ×" + dailyTotal() + "）<br>" +
+    whyCheap() +
+    "<span style='color:#a0aec0'>另：学院月卡 ¥30，立即得洛克钻300+分光水晶100，生效期每天登录再领150分光水晶、星光值+60%；续订一次+30天，加完超过179天就不能续。已勾选✅的礼包不会重复计入。</span>";
+}
+
+// 为什么这个方案便宜：按礼包单价从低到高解释，逐项对比单买价
+function whyCheap(){
+  let html = "<br><b>💡 为什么这样买更便宜（和单买对比）：</b><br>";
+  if(!state.bought.p1) html += "• 高级礼包 1980钻=3球，折合约660钻/颗；常驻单买要1600钻/颗，每颗省约940钻，等于打4折出头，所以最先买它<br>";
+  if(!state.bought.p2) html += "• 炫彩豪华礼遇包 3980钻=5球，折合约796钻/颗；比1600钻/颗单买每颗省约804钻，也是礼包价，优先于单买<br>";
+  html += "• 礼包每赛季限购1次，买完还缺的球才用道具城常驻1600钻/颗补，不重复买已限购的礼包，避免花冤枉钱<br>";
+  html += "• 充值选带加赠的档位（高档位加赠比例更高），同样花现金拿到更多钻，把每颗球的现金成本再压低一层<br>";
+  html += "• 一句话：先用打折礼包把球数垫满，缺口才按原价补，充值再吃加赠，所以整体最便宜<br>";
+  return html;
+}
+
+
+// 渲染商城参考截图（可折叠）
+function renderRefPics(){
+  const box = document.getElementById("refPics");
+  let html = "";
+  REF_PICS.forEach((p,idx)=>{
+    html += `<div style="margin-bottom:10px">
+      <div style="background:#2d3748;padding:8px 12px;border-radius:8px;font-size:13px">${p.t}</div>
+    </div>`;
+  });
+  box.innerHTML = html;
+}
+
+// 本周内想换 N 个棱镜球：先扣当前水晶，缺口靠日常(每天总数×剩余天数) + 献祭(200/只)补齐
+function calcSacrifice(){
+  const want = parseInt(document.getElementById("wantBalls").value);
+  if(isNaN(want) || want <= 0){
+    document.getElementById("sacResult").textContent = "输入想换的球数，自动算要献祭几只";
+    return;
+  }
+  // 本周日常能拿的水晶（含今天）
+  const now = new Date();
+  const wd = now.getDay();
+  const leftToSun = wd === 0 ? 0 : 7 - wd;
+  const DAILY = dailyTotal();
+  const dailyCrystal = DAILY * (leftToSun + 1);
+  const have = state.crystal + dailyCrystal;
+  const needTotal = want * BALL_PRICE;
+  const gap = needTotal - have;
+  if(gap <= 0){
+    document.getElementById("sacResult").innerHTML =
+      "想换 <b>" + want + "</b> 个球，本周日常就够了，<b>不用献祭</b>（现有" + state.crystal + " + 日常" + dailyCrystal + " = " + have + "）";
+    return;
+  }
+  const sacs = Math.ceil(gap / 200);
+  document.getElementById("sacResult").innerHTML =
+    "想换 <b>" + want + "</b> 个球（需 " + needTotal + "）<br>" +
+    "现有 " + state.crystal + " + 本周日常 " + dailyCrystal + " = " + have + "<br>" +
+    "还差 " + gap + " 个，需献祭 <b>" + sacs + "</b> 只炫彩精灵（+200/只，共 " + sacs*200 + "）";
+}
+
+function refresh(){
+  const ci = document.getElementById("crystalInput");
+  const bi = document.getElementById("ballsInput");
+  if(document.activeElement !== ci) ci.value = state.crystal;
+  if(document.activeElement !== bi) bi.value = state.balls;
+  const can = Math.floor(state.crystal / BALL_PRICE);
+  const remain = state.crystal % BALL_PRICE;
+  document.getElementById("canBalls").textContent = can + " 个";
+  document.getElementById("nextNeed").textContent = can > 0
+    ? "换完 " + can + " 个后还剩 " + remain + " 个，距离下一个还差 " + (BALL_PRICE - remain) + " 个水晶"
+    : "距离下一个还差 " + (BALL_PRICE - state.crystal) + " 个水晶";
+  // 只靠日常凑一个棱镜球(1600)还需几天
+  const DAILY = dailyTotal();
+  const gap = BALL_PRICE - (state.crystal % BALL_PRICE);
+  const need = state.crystal % BALL_PRICE === 0 ? BALL_PRICE : gap;
+  const days = Math.ceil(need / DAILY);
+  document.getElementById("daysNeed").textContent = "还需 " + days + " 天";
+  document.getElementById("daysDetail").textContent =
+    "每天 +" + DAILY + "，还差 " + need + " 个水晶（" + days + " 天收益）";
+  // 顶部取货时间显示（跟着选中的按钮/自填日期变）
+  updateTopDate();
+  document.getElementById("nowTime").textContent = "";
+  // 恢复礼包勾选状态
+  document.getElementById("p1box").textContent = state.bought.p1 ? "✅" : "❌";
+  document.getElementById("p2box").textContent = state.bought.p2 ? "✅" : "❌";
+  // 月卡 / 通行证按钮状态
+  document.getElementById("cardBtn").textContent = state.card ? "月卡：已买 ✅" : "月卡：未买";
+  document.getElementById("passBtn").textContent = state.pass ? "通行证：已买 ✅" : "通行证：未买";
+  document.getElementById("loginBtn").style.display = state.card ? "" : "none";
+  document.getElementById("passAmt").textContent = passDaily();
+  document.getElementById("dailyNote").innerHTML = "只靠日常凑一个棱镜球（每天 +" + dailyTotal() + "）";
+  buildDayPick();
+  renderRefPics();
+  calcSacrifice();
+  calcPlan();
+  const box = document.getElementById("logbox");
+  box.innerHTML = state.log.slice(-30).map(l => "<p>"+l+"</p>").join("");
+  box.scrollTop = box.scrollHeight;
+}
+function snapshot(){ state.history = state.history || []; state.history.push({crystal:state.crystal, balls:state.balls}); }
+function add(n, label){
+  snapshot();
+  state.crystal += n;
+  state.log.push(label + "  +" + n);
+  save(); refresh();
+}
+function exchange(){
+  if(state.crystal < BALL_PRICE){ return; }
+  snapshot();
+  state.crystal -= BALL_PRICE;
+  state.balls += 1;
+  state.log.push("兑换棱镜球  −" + BALL_PRICE);
+  save(); refresh();
+}
+function manual(way){
+  const v = parseInt(document.getElementById("num").value);
+  if(isNaN(v)) return;
+  snapshot();
+  state.crystal += v * way;
+  state.log.push("手动 " + (way>0?"+":"−") + v);
+  document.getElementById("num").value = "";
+  save(); refresh();
+}
+function editCrystal(raw){
+  const n = parseInt(raw);
+  if(isNaN(n)) return;
+  if(n === state.crystal) return;
+  snapshot();
+  state.log.push("修改水晶为 " + n + "（原 " + state.crystal + "）");
+  state.crystal = n;
+  save(); refresh();
+}
+function editBalls(raw){
+  const n = parseInt(raw);
+  if(isNaN(n)) return;
+  if(n === state.balls) return;
+  snapshot();
+  state.log.push("修改棱镜球为 " + n + "（原 " + state.balls + "）");
+  state.balls = n;
+  save(); refresh();
+}
+// 只把当前水晶清零，棱镜球不动
+function clearCrystal(){
+  if(state.crystal === 0){ return; }
+  snapshot();
+  state.log.push("清零水晶（原 " + state.crystal + "）");
+  state.crystal = 0;
+  save(); refresh();
+}
+function reset(){
+  state.crystal = 0; state.balls = 0;
+  state.log = [];
+  save(); refresh();
+}
+// 返回上一步：回滚最近一次改动（水晶/棱镜球），防止误点
+function undo(){
+  var last = state.history && state.history.length ? state.history.pop() : null;
+  if(!last){ return; }
+  state.crystal = last.crystal;
+  state.balls = last.balls;
+  state.log.push("↩ 撤销上一步");
+  save(); refresh();
+}
+// 只清空记录列表，不动水晶和棱镜球
+function clearLog(){
+  state.log = [];
+  save(); refresh();
+}
+function toggleCard(){ state.card = !state.card; save(); refresh(); }
+function togglePass(){ state.pass = !state.pass; save(); refresh(); }
+
+// 兜底：所有函数挂到 window，旧内核/微信内置浏览器也能按名字调用
+function _bindGlobal(){
+  var fns = ["pickDay","pickCustom","checkCard","toggleBuy","calcPlan","whyCheap",
+    "renderRefPics","calcSacrifice","refresh","snapshot","add","exchange","manual",
+    "editCrystal","editBalls","clearCrystal","reset","undo","clearLog",
+    "toggleCard","togglePass","parseCustomDay","selectedDiff","updateTopDate","buildDayPick"];
+  fns.forEach(function(n){ if(typeof window[n] === "function") window[n] = window[n]; });
+}
+
+// 安全初始化：任何一处报错都不让上方按钮/清零消失
+try {
+  _bindGlobal();
+  refresh();
+} catch(err) {
+  var out = document.getElementById("logbox");
+  if(out) out.innerHTML = "<p>初始化提示：" + (err && err.message ? err.message : err) + "</p>";
+}
+
+// 持续拦截平台注入的 AI 生成水印节点（定时扫描，节点一出现就移除）
+(function hideWatermark(){
+  function scan(){
+    try{
+      var all = document.querySelectorAll("*");
+      for(var i=0;i<all.length;i++){
+        var el = all[i];
+        if(!el || el.children !== undefined && el.children.length > 6) continue;
+        var txt = (el.textContent||"").trim();
+        if(txt === "豆包 AI生成" || txt === "豆包AI生成" || txt === "AI生成" || /^豆包\s*AI\s*生成$/.test(txt)){
+          el.parentNode && el.parentNode.removeChild(el);
+        }
+      }
+    }catch(e){}
+  }
+  scan();
+  setInterval(scan, 1500);
+})();
+</script>
+<div style="margin-top:18px;padding:14px 16px;background:#fff;border-radius:14px;color:#a0aec0;font-size:12px;line-height:1.7">
+备注：本工具仅提供数值测算，不附带游戏内截图；商品价格、道具与数值会随版本变动，均以游戏内实时商城为准，建议打开游戏内商城对照查看，本工具不对官方画面进行二次呈现，与游戏官方无任何关联。
+</div>
+<div style="margin-top:10px;padding:14px 16px;background:#fff;border-radius:14px;color:#8a94a6;font-size:11px;line-height:1.8">
+版权声明：本工具的程序代码、界面排版及整体设计为原创作品，受《中华人民共和国著作权法》保护。未经作者书面许可，禁止将本工具整体或部分复制、修改后用于商业售卖、付费转发、二次分发或冒充原创。个人免费使用、非盈利分享请保留本声明。文中出现的游戏名称、道具、商品与数值等信息均为游戏官方所有，本工具仅作玩家个人测算参考，未使用任何官方素材，与游戏官方无任何关联，亦不代表官方立场。
+</div>
+</body>
+</html>
